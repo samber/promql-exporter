@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - '9090:9090'
+
+  exporter:
+    image: golang:1.21
+    ports:
+      - '9517:9517'
+    volumes:
+      - ./:/go/src/github.com/samber/promql_exporter
+    working_dir: /go/src/github.com/samber/promql_exporter
+    command: make watch-dev

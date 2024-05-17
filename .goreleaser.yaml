@@ -1,0 +1,108 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 1
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - id: promql_exporter
+    binary: promql_exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+      # - "8"
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: windows
+        goarch: "arm"
+      - goos: windows
+        goarch: "arm64"
+      - goos: linux
+        goarch: arm
+        goarm: 6
+
+docker_manifests:
+  - name_template: "docker.io/samber/promql-exporter:{{ .Tag }}"
+    image_templates:
+      - "docker.io/samber/promql-exporter:{{ .Tag }}-amd64"
+      - "docker.io/samber/promql-exporter:{{ .Tag }}-arm64"
+      # - "docker.io/samber/promql-exporter:{{ .Tag }}-arm64v8"
+
+dockers:
+  - image_templates:
+      # - "docker.io/samber/promql-exporter:latest"
+      # - "docker.io/samber/promql-exporter:v{{ .Major }}-amd64"
+      # - "docker.io/samber/promql-exporter:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "docker.io/samber/promql-exporter:{{ .Tag }}-amd64"
+    use: buildx
+    dockerfile: Dockerfile
+    # build_flag_templates:
+    #   - "--pull"
+    #   - "--platform=linux/amd64"
+    goarch: amd64
+  - image_templates:
+      # - "docker.io/samber/promql-exporter:latest"
+      # - "docker.io/samber/promql-exporter:v{{ .Major }}-arm64"
+      # - "docker.io/samber/promql-exporter:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "docker.io/samber/promql-exporter:{{ .Tag }}-arm64"
+    use: buildx
+    dockerfile: Dockerfile
+    # build_flag_templates:
+    #   - "--pull"
+    #   - "--platform=linux/arm64"
+    goarch: arm64
+  # - image_templates:
+  #     # - "docker.io/samber/promql-exporter:latest"
+  #     # - "docker.io/samber/promql-exporter:v{{ .Major }}-arm64v8"
+  #     # - "docker.io/samber/promql-exporter:v{{ .Major }}.{{ .Minor }}-arm64v8"
+  #     - "docker.io/samber/promql-exporter:{{ .Tag }}-arm64v8"
+  #   use: buildx
+  #   dockerfile: Dockerfile
+  #   # build_flag_templates:
+  #   #   - "--pull"
+  #   #   - "--platform=linux/arm64/v8"
+  #   goarch: arm64/v8
+
+archives:
+  - id: binary
+    format: binary
+    # name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}"
+  - id: archive
+    format: tar.gz
+    # name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}"
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
