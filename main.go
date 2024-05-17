@@ -76,7 +76,7 @@ func main() {
 		result, err := exporter.GetMetrics(*endpoint, headersKV)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("error: %s", err)))
+			_, _ = w.Write([]byte(fmt.Sprintf("error: %s", err))) //nolint:errcheck
 			return
 		}
 
@@ -104,7 +104,7 @@ func main() {
 
 		slog.Info(fmt.Sprintf("Extracted %d metrics", count))
 		w.WriteHeader(http.StatusOK)
-		w.Write(buf.Bytes())
+		_, _ = w.Write(buf.Bytes()) //nolint:errcheck
 	})
 
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))
