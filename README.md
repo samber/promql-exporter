@@ -25,7 +25,7 @@ docker run --rm -it -p 9517:9517 -e ENDPOINT=http://demo.robustperception.io:909
 Or using a binary:
 
 ```sh
-wget -O promql_exporter https://github.com/samber/promql-exporter/releases/download/v0.1.0/promql_exporter.1.1_linux_amd64
+wget -O promql_exporter https://github.com/samber/promql-exporter/releases/download/v0.1.0/promql_exporter_0.1.0_linux_amd64
 chmod +x promql_exporter
 ./promql_exporter --endpoint xxxx --header 'x-token: yyyy' --header 'x-token: zzzz'
 ```
